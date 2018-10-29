@@ -24,3 +24,13 @@ $container['db'] = function ($c) {
 $container['App\controllers\UserController'] = function ($c) {
     return new App\controllers\UserController($c);
 };
+
+$container['App\controllers\GiftController'] = function ($c) {
+    return new App\controllers\GiftController($c);
+};
+
+$container['errorHandler'] = function ($container) {
+    return function ($request, $response, $exception) use ($container) {
+            return $container['response']->withJson([]);
+    };
+};

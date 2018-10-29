@@ -24,6 +24,8 @@ class GiftModel extends CrudModel {
             if (!is_array($params))
                 throw (new \Exception());
 
+            //TODO: needed check users exist!
+
             unset($params[Gift::id]);
 
             $curTime = (new \DateTime())->getTimestamp();
@@ -42,7 +44,7 @@ class GiftModel extends CrudModel {
             );
 
             if(!empty($objects))
-                throw new \Exception('You can\'t give more than one gift a day' );
+                throw new \Exception('You can\'t send more than one gift a day' );
 
 
             $params[Gift::donationTime] = $curTime;
@@ -97,5 +99,10 @@ class GiftModel extends CrudModel {
 
             $this->affectedObjects[] = $affectedRows;
         }
+    }
+
+    function deleteObjects(array $inputParams)
+    {
+        throw new \Exception('Method not supported');
     }
 } 
