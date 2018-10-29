@@ -1,5 +1,7 @@
 <?php
 
+require __DIR__ . '/../../vendor/autoload.php';
+
 use App\config\db\Gift;
 use App\models\GiftModel;
 
@@ -7,7 +9,7 @@ class ValidateGiftJob
 {
     const GIFTS_TABLE_NAME = 'gifts';
 
-    const VALIDATION_TIME = 10080; // 60 * 24 * 7
+    const VALIDATION_TIME = 604800; // 60 * 60 * 24 * 7
 
     /** @var \Slim\PDO\Database $pdo */
     private $db = null;
@@ -24,12 +26,12 @@ class ValidateGiftJob
         $tableName = self::GIFTS_TABLE_NAME;
 
         $curTime = (new \DateTime())->getTimestamp();
-
+        $time = $curTime - self::VALIDATION_TIME;
         $selectStatement = $pdo
             ->select()
             ->from($tableName)
             ->where(Gift::isTaken, '=', GiftModel::STATUS_NOT_TAKEN)
-            ->where(Gift::donationTime, '>', $curTime - self::VALIDATION_TIME);
+            ->where(Gift::donationTime, '<', $time);
 
         $stmt = $selectStatement->execute();
         $objects = $stmt->fetchAll();
@@ -65,5 +67,5 @@ try {
     $job->run();
 
 } catch (Exception $ex) {
-
+    print_r($ex);
 }
