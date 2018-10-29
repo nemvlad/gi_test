@@ -15,6 +15,12 @@ abstract class BaseController {
     const METHOD_PUT = 'PUT';
     const METHOD_DELETE = 'DELETE';
 
+    const PARAM_ITEM_HANDLER = 'itemHandler';
+    const PARAM_GET_DATA = 'getData';
+    const PARAM_POST_DATA = 'postData';
+
+    const Get_FilterContent = 'filter';
+
     /** @var string Method used when calling service. GET, POST, PUT or DELETE */
     protected $method = null;
 
@@ -32,13 +38,32 @@ abstract class BaseController {
     /** @var BaseModel */
     private $model = NULL;
 
-    public function __invoke(Request $request, Response $response, $next)
+    /** @var array */
+    protected $params = false;
+
+    protected $_itemHandler = null;
+
+    /** @var array|null Raw structure of filter expression that is used to filter request response */
+    public $filter = null;
+
+    protected $container;
+
+    public function __construct( $container) {
+        $this->container = $container;
+    }
+
+    public function __invoke(Request $request, Response $response, $args)
     {
         $this->method = $request->getMethod();
         $this->model = $this->constructModel();
 
-        $getData = $request->getQueryParams();
-        $postData = $request->getParsedBody();
+        if(isset($args[self::PARAM_ITEM_HANDLER]))
+            $this->_itemHandler = $args[self::PARAM_ITEM_HANDLER];
+
+        $this->params[self::PARAM_GET_DATA] = $request->getQueryParams();
+        $this->params[self::PARAM_POST_DATA] = $request->getParsedBody();
+
+        $this->setFilter();
 
         switch($this->method)
         {
@@ -49,7 +74,7 @@ abstract class BaseController {
                 }
                 catch (\Exception $ex)
                 {
-                    throw (new \Exception());
+                    throw (new \Exception($ex->getMessage()));
                 }
                 break;
             case self::METHOD_POST:
@@ -86,25 +111,97 @@ abstract class BaseController {
                 throw new \Exception(ErrorAbstract::_getErrorMessage(ErrorAbstract::SVC_METHOD_NOT_SUPPORTED));
         }
 
+        return $response->withJson($this->response);
     }
 
     protected function processGetRequest() {
-        $response = $this->model->getObjects();
+
+
+        if ($this->_itemHandler && !$this->model->hasCustomRequestObjectIdImplementation())
+        {
+            if (is_scalar($this->_itemHandler))
+            {
+                $objectId = $this->_itemHandler;
+
+                $object = $this->model->getObject($objectId);
+                if (!$object)
+                    throw new \Exception(print_r($objectId));
+
+                $response[] = $object;
+            }
+            else
+                throw new \Exception(ErrorAbstract::SVC_INVALID_ITEM_HANDLER_SPECIFIED);
+
+        }
+        else
+        {
+            $response = $this->model->getObjects($this->filter);
+        }
+
+        $this->response = $response;
     }
 
     protected function processPostRequest() {
-        $this->model->addObjects([]);
-        $response = $this->model->affectedObjects;
+        $inputParams = $this->getVerifiedInput();
+        $this->model->addObjects($inputParams);
+        $this->response = $this->model->affectedObjects;
     }
 
     protected function processPutRequest() {
-        $this->model->updateObjects([]);
-        $response = $this->model->affectedObjects;
+        $inputParams = $this->getVerifiedInput();
+        $this->model->updateObjects($inputParams);
+        $this->response = $this->model->affectedObjects;
     }
 
     protected function processDeleteRequest() {
-        $this->model->deleteObjects([]);
-        $response = $this->model->affectedObjects;
+        $inputParams = $this->getVerifiedInput();
+        $this->model->deleteObjects($inputParams);
+        $this->response = $this->model->affectedObjects;
+    }
+
+    protected function getVerifiedInput()
+    {
+        $inputParams = $this->params['postData']['content'];
+
+        if (!is_array($inputParams))
+        {
+            throw (new \Exception());
+        }
+
+        foreach ($inputParams as &$params)
+        {
+            if (!is_array($params))
+                throw (new \Exception());
+
+        }
+        unset($params);
+
+        return $inputParams;
+    }
+
+    /**
+     * Extract and validate filter.
+     * Filter can be passed either in POST or GET parameters, POST is preferred
+     *
+     * @throws \Exception
+     */
+    protected function setFilter()
+    {
+        $getData = $this->params[self::PARAM_GET_DATA];
+        $postData = $this->params[self::PARAM_POST_DATA];
+        if (isset($getData[[self::Get_FilterContent]]) &&
+            $filter = $getData[[self::Get_FilterContent]])
+        {
+            if (!is_array($filter))
+                throw new \Exception(self::Get_FilterContent);
+            $this->filter = $filter;
+        }
+        else if (isset($postData[[self::Get_FilterContent]]) && $filter = $postData[[self::Get_FilterContent]])
+        {
+            if (is_array($filter))
+                throw new \Exception(self::Get_FilterContent);
+            $this->filter = json_decode($filter, true);
+        }
     }
 
     /**
@@ -123,6 +220,6 @@ abstract class BaseController {
     protected function constructModel()
     {
         $modelName = static::getModelName();
-        return new $modelName;
+        return new $modelName($this->container);
     }
 } 

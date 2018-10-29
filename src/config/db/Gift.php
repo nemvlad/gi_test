@@ -1,6 +1,6 @@
 <?php
 
-use App\config\db\Generic;
+namespace App\config\db;
 
 class Gift extends Generic
 {
@@ -8,11 +8,11 @@ class Gift extends Generic
     const object = 'object';
     const giver = 'giver';
     const recipient = 'recipient';
-    const donationTime = 'donationTime';
-    const isTaken = 'isTaken';
+    const donationTime = 'donation_time';
+    const isTaken = 'is_taken';
 
     static function getTableName()
     {
-        return 'gift';
+        return 'gifts';
     }
 }

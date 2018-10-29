@@ -13,7 +13,7 @@ $container['logger'] = function (Psr\container\ContainerInterface $c) {
 };
 
 
-$container['pdo'] = function ($c) {
+$container['db'] = function ($c) {
     $dsn = 'mysql:host='.$c['settings']['db']['host'].';dbname='.$c['settings']['db']['database'].';charset=utf8';
     $usr = $c['settings']['db']['username'];
     $pwd = $c['settings']['db']['password'];
@@ -22,5 +22,5 @@ $container['pdo'] = function ($c) {
 };
 
 $container['App\controllers\UserController'] = function ($c) {
-    return new App\controllers\UserController($c['pdo']);
+    return new App\controllers\UserController($c);
 };

@@ -2,8 +2,6 @@
 
 namespace App\config\db;
 
-use App\config\db\Generic;
-
 class User extends Generic
 {
     const uuid = 'uuid';
@@ -12,6 +10,6 @@ class User extends Generic
 
     static function getTableName()
     {
-        return 'user';
+        return 'users';
     }
 }

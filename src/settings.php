@@ -14,10 +14,10 @@ return [
         'db' => [
             // PDO database configuration
             'driver'    => 'mysql',
-            'host'      => 'localhost',
+            'host'      => '192.168.56.103',
             'database'  => 'gi_test_db',
             'username'  => 'user',
-            'password'  => '123456Qw',
+            'password'  => 'pass',
             'charset'   => 'utf8',
             'collation' => 'utf8_unicode_ci',
             'prefix'    => '',

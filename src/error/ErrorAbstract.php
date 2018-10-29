@@ -8,6 +8,7 @@ abstract class ErrorAbstract
     const INT_INTERNAL_ERROR = 1;
 
     const SVC_METHOD_NOT_SUPPORTED = 2;
+    const SVC_INVALID_ITEM_HANDLER_SPECIFIED = 3;
 
     /**
      * Returns error message by error code
@@ -39,6 +40,7 @@ abstract class ErrorAbstract
             $errorMessages = [
                 self::INT_INTERNAL_ERROR => "Internal error",
                 self::SVC_METHOD_NOT_SUPPORTED => "Method not supported",
+                self::SVC_INVALID_ITEM_HANDLER_SPECIFIED => "Invalid item handler specified",
             ];
         }
 
