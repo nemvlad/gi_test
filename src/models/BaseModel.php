@@ -39,7 +39,7 @@ abstract class BaseModel {
                 if(is_array($value)) {
                     if(isset($value[self::OPERATOR]) && isset($value[self::RIGHT])) {
                         if($value[self::OPERATOR] == 'BETWEEN') {
-                            $selectStatement->whereBetween($key, $value);
+                            $selectStatement->whereBetween($key, $value[self::RIGHT]);
                         } else {
                             $selectStatement->where($key, $value[self::OPERATOR], $value[self::RIGHT]);
                         }

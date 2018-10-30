@@ -82,9 +82,12 @@ class GiftModel extends CrudModel {
                 throw new \Exception($id);
 
 
-            if($oldObjectParams[Gift::recipient] !== $params[Gift::recipient]) {
+            if($oldObjectParams[Gift::recipient] != $params[Gift::recipient]) {
                 throw new \Exception('');
             }
+
+            if($oldObjectParams[Gift::isTaken] == self::STATUS_TAKEN)
+                throw new \Exception('Gift is already taken');
 
             $params = [];
             $params[Gift::isTaken] = self::STATUS_TAKEN;

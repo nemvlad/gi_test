@@ -196,7 +196,7 @@ abstract class BaseController {
                 throw new \Exception(self::Get_FilterContent);
             $this->filter = $filter;
         }
-        else if (isset($postData[[self::Get_FilterContent]]) && $filter = $postData[[self::Get_FilterContent]])
+        else if (isset($postData[self::Get_FilterContent]) && $filter = $postData[self::Get_FilterContent])
         {
             if (is_array($filter))
                 throw new \Exception(self::Get_FilterContent);

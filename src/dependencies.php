@@ -31,6 +31,8 @@ $container['App\controllers\GiftController'] = function ($c) {
 
 $container['errorHandler'] = function ($container) {
     return function ($request, $response, $exception) use ($container) {
-            return $container['response']->withJson([]);
+            return $container['response']->withJson([
+                'message' => 'Somthing wrong'
+            ]);
     };
 };
